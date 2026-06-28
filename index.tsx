@@ -92,7 +92,44 @@ export default definePlugin({
 
         Parser.defaultRules.latexInline = {
             order: Parser.defaultRules.inlineCode.order - 1,
-            match: (source) => /^\$([^\s$][^$]*?[^\s$])\$/.exec(source) || /^\$([^$])\$/.exec(source),
+            match: (source) => {
+                if (!source.startsWith('$') || source.startsWith('$$')) return null;
+
+                let braceLevel = 0;
+                let escapeNext = false;
+
+                for (let i = 1; i < source.length; i++) {
+                    const char = source[i];
+
+                    if (escapeNext) {
+                        escapeNext = false;
+                        continue;
+                    }
+                    if (char === '\\') {
+                        escapeNext = true;
+                        continue;
+                    }
+
+                    if (char === '{') {
+                        braceLevel++;
+                    } else if (char === '}') {
+                        if (braceLevel > 0) braceLevel--;
+                    } else if (char === '$' && braceLevel === 0) {
+                        const matchString = source.slice(0, i + 1);
+                        const capture = source.slice(1, i);
+
+                        if (capture.length === 0) return null; // Reject empty $$
+
+                        if (capture.length > 1 && (/^\s/.test(capture) || /\s$/.test(capture))) {
+                            return null;
+                        }
+
+                        return [matchString, capture];
+                    }
+                }
+
+                return null;
+            },
             parse: (capture) => ({ mathText: capture[1], displayMode: false }),
             react: (node) => <LatexRenderer {...node} />
         };
