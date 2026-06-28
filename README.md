@@ -10,6 +10,6 @@ A Vencord userplugin that parses and renders LaTeX mathematical notation in mess
 
 ## Install
 
-Follow the [official Vencord documentation](https://docs.vencord.dev/installing/custom-plugins/) for installing custom plugins
+Follow the [official Vencord documentation](https://docs.vencord.dev/installing/custom-plugins/) for installing custom plugins.
 
-Drop the index.tsx inside `src/userplugins/latexRenderer/`
+Drop the index.tsx inside `src/userplugins/latexRenderer/` and don't forget to do `pnpm add -w katex` at the root of the Vencord source.
